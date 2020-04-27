@@ -11,10 +11,12 @@ namespace HangfireAuthorization.Authorization
     public class HangfireAuthorizationFilter : IDashboardAuthorizationFilter
     {
         private IMembershipService _membershipService;
+        private AuthorizationSettings _authorizationSettings;
 
-        public HangfireAuthorizationFilter(IMembershipService membershipService)
+        public HangfireAuthorizationFilter(IMembershipService membershipService, AuthorizationSettings authorizationSettings)
         {
             _membershipService = membershipService;
+            _authorizationSettings = authorizationSettings;
         }
 
         public bool Authorize([NotNull] DashboardContext context)
@@ -28,7 +30,7 @@ namespace HangfireAuthorization.Authorization
 
             return new JoinableTaskFactory(new JoinableTaskContext()).Run(async delegate
             {
-                return await _membershipService.ReadUserInGroupsAsync(userSub, new[] { "LdmHangfireGroupId" });
+                return await _membershipService.ReadUserInGroupsAsync(userSub, new[] { _authorizationSettings.HangfireAuthorizationGroup });
             });
         }
     }
